@@ -4,16 +4,16 @@ var sublevel = require('sublevel')
 var inverted = require('inverted-index')
 
 // TODO
-// 
+//
 // add the attrs api
 // add getter
 
-var search = function(Model, options){
+var search = function(Model, db, options){
   if(!(this instanceof search)) return new search(Model, options)
 
   var self = this
 
-  this.index = inverted(sublevel(Model.db, 'search'), options)
+  this.index = inverted(sublevel(db, 'search'), options)
   this.Model = Model
 
   this.attrs = Object.keys(Model.attrs).filter(function(attr){
@@ -84,9 +84,9 @@ search.prototype.search = function(query, fn){
   })
 }
 
-module.exports = function(options){
+module.exports = function(db, options){
   return function(options, Model){
-    var instance = search(Model, options)
+    var instance = search(Model, db, options)
     Model.search = instance.search.bind(instance)
   }
 }
