@@ -1,7 +1,7 @@
 {
   "name": "modella-level-search",
-  "version": "0.0.1",
-  "description": "",
+  "version": "0.0.2",
+  "description": "search your modella models",
   "keywords": [],
   "homepage": "https://github.com/ramitos/modella-level-search",
   "bugs": {
@@ -27,7 +27,9 @@
   "dependencies": {
     "async": "~0.2.9",
     "level": "~0.18.0",
-    "type-component": "0.0.1"
+    "type-component": "0.0.1",
+    "sublevel": "~2.3.0",
+    "inverted-index": "~1.1.0"
   },
   "devDependencies": {
     "mocha-lcov-reporter": "0.0.x",
@@ -36,9 +38,7 @@
     "mocha": "1.10.x",
     "level-modella": "ramitos/level-modella",
     "timehat": "0.0.1",
-    "modella": "~0.2.6",
-    "sublevel": "~2.3.0",
-    "inverted-index": "~1.1.0"
+    "modella": "~0.2.6"
   },
   "engines": {
     "node": ">=0.8"

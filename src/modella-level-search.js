@@ -1,11 +1,14 @@
 var async = require('async')
 var type = require('type-component')
+var sublevel = require('sublevel')
+var inverted = require('inverted-index')
 
-var search = function(index, Model){
-  if(!(this instanceof search)) return new search(index, Model)
+var search = function(Model, options){
+  if(!(this instanceof search)) return new search(Model, options)
 
   var self = this
-  this.index = index
+
+  this.index = inverted(sublevel(Model.db, 'search'), options)
   this.Model = Model
 
   this.attrs = Object.keys(Model.attrs).filter(function(attr){
@@ -76,9 +79,9 @@ search.prototype.search = function(query, fn){
   })
 }
 
-module.exports = function(index){
-  return function(Model){
-    var instance = search(index, Model)
+module.exports = function(options){
+  return function(options, Model){
+    var instance = search(Model, options)
     Model.search = instance.search.bind(instance)
   }
 }
