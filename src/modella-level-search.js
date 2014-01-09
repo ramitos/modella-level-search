@@ -3,6 +3,11 @@ var type = require('type-component')
 var sublevel = require('sublevel')
 var inverted = require('inverted-index')
 
+// TODO
+// 
+// add the attrs api
+// add getter
+
 var search = function(Model, options){
   if(!(this instanceof search)) return new search(Model, options)
 
