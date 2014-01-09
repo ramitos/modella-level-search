@@ -1,0 +1,46 @@
+{
+  "name": "modella-level-search",
+  "version": "0.0.1",
+  "description": "",
+  "keywords": [],
+  "homepage": "https://github.com/ramitos/modella-level-search",
+  "bugs": {
+    "url": "http://github.com/ramitos/modella-level-search/issues",
+    "email": "mail@sergioramos.me"
+  },
+  "license": {
+    "url": "https://raw.github.com/ramitos/modella-level-search/master/license",
+    "type": "MIT"
+  },
+  "author": "Sérgio Ramos <mail@sergioramos.me> (http://sergioramos.me)",
+  "main": "src/modella-level-search.js",
+  "directories": {
+    "lib": "src"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/ramitos/modella-level-search.git"
+  },
+  "scripts": {
+    "test": "make test test-coveralls"
+  },
+  "dependencies": {
+    "async": "~0.2.9",
+    "level": "~0.18.0",
+    "type-component": "0.0.1"
+  },
+  "devDependencies": {
+    "mocha-lcov-reporter": "0.0.x",
+    "jscoverage": "0.3.x",
+    "coveralls": "2.0.x",
+    "mocha": "1.10.x",
+    "level-modella": "ramitos/level-modella",
+    "timehat": "0.0.1",
+    "modella": "~0.2.6",
+    "sublevel": "~2.3.0",
+    "inverted-index": "~1.1.0"
+  },
+  "engines": {
+    "node": ">=0.8"
+  }
+}
