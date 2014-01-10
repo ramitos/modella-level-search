@@ -95,15 +95,32 @@ search.prototype.addModel = function(model){
   return this.models[model.modelName] = Model(model, this.index)
 }
 
-search.prototype.search = function(query, options, fn){
+search.prototype.search = function(query, facets, options, fn){
   var self = this
 
-  if(type(options) !== 'object'){
+  if(arguments.length < 2){
+    throw new Error('query and callback arguments required')
+  }
+
+  if(!Array.isArray(facets) && (type(facets) === 'object')){
+    var mid = options
+    options = facets
+    fn = mid
+    facets = []
+  }
+
+  if(type(facets) === 'function'){
+    fn = facets
+    facets = ['']
+    options = {}
+  }
+
+  if(type(options) === 'function'){
     fn = options
     options = {}
   }
 
-  self.index.search(query, options, function(err, result){
+  self.index.search(query, facets, options, function(err, result){
     if(err) return next(err);
 
     async.map(result.results, function(id, fn){
