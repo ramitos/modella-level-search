@@ -5,29 +5,30 @@ var inverted = require('inverted-index')
 
 
 var Model = function(model, index){
-  if(!(this instanceof Model)) return new search(model, index)
+  if(!(this instanceof Model)) return new Model(model, index)
 
   this.Model = model
   this.index = index
+  var self = this
 
-  this.attrs = Object.keys(Model.attrs).filter(function(attr){
-    return Model.attrs[attr].search
+  this.attrs = Object.keys(model.attrs).filter(function(attr){
+    return model.attrs[attr].search
   })
 
-  this._save = Model.prototype.save
-  this._remove = Model.prototype.remove
+  this._save = this.Model.prototype.save
+  this._remove = this.Model.prototype.remove
 
-  Model.prototype.save = function(fn){
+  model.prototype.save = function(fn){
     if(type(fn) !== 'function') fn = function(){}
     self.save(this, fn)
   }
 
-  Model.prototype.remove = function(fn){
+  model.prototype.remove = function(fn){
     if(type(fn) !== 'function') fn = function(){}
     self.remove(this, fn)
   }
 
-  Model.on('attr', this.onAttr.bind(this))
+  model.on('attr', this.onAttr.bind(this))
 }
 
 Model.prototype.onAttr = function(name, options){
@@ -80,11 +81,14 @@ Model.prototype.search = function(query, fn){
   })
 }
 
-var search = module.exports = function(Model, db, options){
-  if(!(this instanceof search)) return new search(Model, db, options)
+var search = module.exports = function(db, options){
+  if(!(this instanceof search)) return new search( db, options)
 
   this.index = inverted(sublevel(db, 'search'), options)
   this.models = {}
+
+  this.plugin = this.plugin.bind(this)
+  this.search = this.search.bind(this)
 }
 
 search.prototype.addModel = function(model){
@@ -94,7 +98,7 @@ search.prototype.addModel = function(model){
 search.prototype.search = function(query, options, fn){
   var self = this
 
-  if(options !== 'object'){
+  if(type(options) !== 'object'){
     fn = options
     options = {}
   }
