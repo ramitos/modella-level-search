@@ -3,18 +3,12 @@ var type = require('type-component')
 var sublevel = require('sublevel')
 var inverted = require('inverted-index')
 
-// TODO
-//
-// add the attrs api
-// add getter
 
-var search = function(Model, db, options){
-  if(!(this instanceof search)) return new search(Model, options)
+var Model = function(model, index){
+  if(!(this instanceof Model)) return new search(model, index)
 
-  var self = this
-
-  this.index = inverted(sublevel(db, 'search'), options)
-  this.Model = Model
+  this.Model = model
+  this.index = index
 
   this.attrs = Object.keys(Model.attrs).filter(function(attr){
     return Model.attrs[attr].search
@@ -36,15 +30,15 @@ var search = function(Model, db, options){
   Model.on('attr', this.onAttr.bind(this))
 }
 
-search.prototype.onAttr = function(name, options){
-  if(!options.search){
+Model.prototype.onAttr = function(name, options){
+  if(!options.Model){
     return
   }
 
   this.attrs.push(name)
 }
 
-search.prototype.remove = function(model, fn){
+Model.prototype.remove = function(model, fn){
   var self = this
 
   function unlink(err){
@@ -55,27 +49,29 @@ search.prototype.remove = function(model, fn){
   this._save.call(model, unlink)
 }
 
-search.prototype.save = function(model, fn){
+Model.prototype.save = function(model, fn){
   var self = this
+  var facet = self.Model.modelName
+  var id = model.primary() + '--' + facet
 
   function index(err){
     if(err) return fn(err)
     self.index.link(self.attrs.map(function(attr){
       return model[attr]()
-    }).join(' '), model.primary(), self.Model.modelName, fn)
+    }).join(' '), id, facet, fn)
   }
 
   this._save.call(model, index)
 }
 
-search.prototype.search = function(query, fn){
+Model.prototype.search = function(query, fn){
   var self = this
   var facet = self.Model.modelName
 
   self.index.search(query, facet, function(err, result){
     if(err) return fn(err)
     async.map(result.results, function(id, fn){
-      self.Model.get(id, fn)
+      self.Model.get(id.replace(/--.*?$/i, ''), fn)
     }, function(err, results){
       if(err) return fn(err)
       result.results = results
@@ -84,9 +80,42 @@ search.prototype.search = function(query, fn){
   })
 }
 
-module.exports = function(db, options){
-  return function(options, Model){
-    var instance = search(Model, db, options)
-    Model.search = instance.search.bind(instance)
+var search = module.exports = function(Model, db, options){
+  if(!(this instanceof search)) return new search(Model, db, options)
+
+  this.index = inverted(sublevel(db, 'search'), options)
+  this.models = {}
+}
+
+search.prototype.addModel = function(model){
+  return this.models[model.modelName] = Model(model, this.index)
+}
+
+search.prototype.search = function(query, options, fn){
+  var self = this
+
+  if(options !== 'object'){
+    fn = options
+    options = {}
   }
+
+  self.index.search(query, options, function(err, result){
+    if(err) return next(err);
+
+    async.map(result.results, function(id, fn){
+      var modelName = id.match(/--(.*?)$/i)[1]
+      self.models[modelName].Model.get(id.replace(/--(.*?)$/i, ''), fn)
+    }, function(err, results){
+      if(err) return fn(err)
+      fn(err, {
+        last: result.last,
+        results: results
+      })
+    })
+  })
+}
+
+search.prototype.plugin = function(Model){
+  var instance = this.addModel(Model)
+  Model.search = instance.search.bind(instance)
 }
