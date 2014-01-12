@@ -44,7 +44,9 @@ Model.prototype.remove = function(model, fn){
 
   function unlink(err){
     if(err) return fn(err)
-    self.index.remove(model.primary(), fn)
+    self.index.remove(model.primary(), function(err){
+      fn(err, model)
+    })
   }
 
   this._save.call(model, unlink)
@@ -59,7 +61,9 @@ Model.prototype.save = function(model, fn){
     if(err) return fn(err)
     self.index.link(self.attrs.map(function(attr){
       return model[attr]()
-    }).join(' '), id, facet, fn)
+    }).join(' '), id, facet, function(err){
+      fn(err, model)
+    })
   }
 
   this._save.call(model, index)
