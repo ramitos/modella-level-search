@@ -1,3 +1,5 @@
+![deprecated](https://img.shields.io/badge/status-deprecated-red.svg?style=plastic)
+
 # modella-level-search
 
 [![NPM version](https://badge.fury.io/js/modella-level-search.png)](http://badge.fury.io/js/modella-level-search)
